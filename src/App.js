@@ -57,10 +57,8 @@ class SearchResult extends Component {
 
 class LoadingIndicator extends Component {
   render() {
-    if (this.props.loading) {
-      return <span>Loading...</span>
-    }
-    return <span>done</span>
+    let hiddenClass = this.props.loading ? "" : "hidden";
+    return <span className={hiddenClass}>Loading...</span>
   }
 }
 

@@ -1,4 +1,5 @@
-.App {
+.hidden {
+  visibility: hidden;
 }
 
 .App-intro {
