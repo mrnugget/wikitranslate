@@ -1,0 +1,21 @@
+.App {
+}
+
+.App-intro {
+  font-size: large;
+}
+
+.results {
+  list-style: none;
+  padding-left: 0em;
+}
+
+.resultItem {
+  margin: 0.5em;
+}
+
+.language {
+  background-color: #ccc;
+  margin-right: 0.1em;
+  min-width: 200px;
+}
