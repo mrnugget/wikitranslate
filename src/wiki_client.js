@@ -34,6 +34,21 @@ class WikiClient {
     return langlinks;
   }
 
+  pagetitlesFromResponse(response) {
+    let pages = response.query.pages;
+    let titles = [];
+
+    Object.keys(pages).forEach((key) => {
+      let title = pages[key.toString()].title;
+
+      if (title) {
+        titles.push({ title: title });
+      }
+    });
+
+    return titles;
+  }
+
   buildUrl(searchTerm, continueQuery) {
     return `${this.hostUrl}?${this.baseQueryParams}&titles=${searchTerm}&${continueQuery}`;
   }
@@ -55,6 +70,15 @@ class WikiClient {
       }
 
       cb(results);
+    })
+  }
+
+  autocomplete(term, cb) {
+    let url = `https://en.wikipedia.org/w/api.php?action=query&format=json&generator=prefixsearch&prop=pageprops&ppprop=displaytitle&wbptterms=description&gpssearch=${term}&gpsnamespace=0&gpslimit=6&callback=?`;
+
+    $.getJSON(url, (response) => {
+      let titles = this.pagetitlesFromResponse(response);
+      cb(titles);
     })
   }
 }

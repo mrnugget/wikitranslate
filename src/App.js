@@ -13,10 +13,17 @@ class SearchForm extends Component {
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+
+    this.client = new WikiClient();
   }
 
   handleChange(event) {
-    this.setState({value: event.target.value});
+    let term = event.target.value;
+    this.setState({value: term});
+
+    this.client.autocomplete(term, (response) => {
+      console.log("term=", term, ", response=", response);
+    });
   }
 
   handleSubmit(event) {
