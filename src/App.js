@@ -14,22 +14,9 @@ class SearchForm extends Component {
 
     this.onSelect = this.onSelect.bind(this);
     this.onChange = this.onChange.bind(this);
+    this.renderMenu = this.renderMenu.bind(this);
 
     this.client = new WikiClient();
-
-    this.menuStyle = {
-      borderRadius: '3px',
-      boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
-      background: 'rgba(255, 255, 255, 0.9)',
-      borderStyle: 'solid',
-      borderWidth: '1px',
-      borderColor: '#bbb',
-      padding: '2px 0',
-      fontSize: '90%',
-      position: 'fixed',
-      overflow: 'auto',
-      maxHeight: '50%',
-    }
   }
 
   onSelect(value, item) {
@@ -39,13 +26,20 @@ class SearchForm extends Component {
 
   onChange(event, value) {
     this.setState({ value, loading: true })
-    if (value === "") {
-        this.setState({ pages: [], loading: false })
+
+    if (value === '') {
+      this.setState({ pages: [], loading: false });
     } else {
       this.client.autocomplete(value, (items) => {
         this.setState({ pages: items, loading: false })
       })
     }
+  }
+
+  renderMenu(items, value, style) {
+    if (items.length === 0) return <div></div>;
+
+    return <div className="autocomplete-menu" style={{...style}} children={items} />
   }
 
   renderItem(item, isHighlighted) {
@@ -69,6 +63,7 @@ class SearchForm extends Component {
         getItemValue={(item) => item.title}
         onSelect={this.onSelect}
         onChange={this.onChange}
+        renderMenu={this.renderMenu}
         renderItem={this.renderItem}
       />
     )
