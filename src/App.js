@@ -1,5 +1,7 @@
-import $ from 'jquery';
 import React, { Component } from 'react';
+
+import WikiClient from './wiki_client';
+
 import './normalize.css';
 import './skeleton.css';
 import './App.css';
@@ -84,6 +86,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
+    this.wikiClient = new WikiClient();
 
     this.state = {
       loading: false,
@@ -104,61 +107,11 @@ class App extends Component {
   fetchResults(searchTerm) {
     this.setState({loading: true});
 
-    this.makeRequest(searchTerm, {}, (results) => {
+    this.wikiClient.makeRequest(searchTerm, {}, (results) => {
       this.setState({results: results})
     }, () => {
       this.setState({loading: false});
     });
-  }
-
-  buildContinueParamsString(continueParams) {
-    let keys = Object.keys(continueParams);
-    if (keys.length === 0) return 'continue=';
-
-    return keys.map((key) => { return `${key}=${continueParams[key]}` }).join("&");
-  }
-
-  langlinksFromResponse(response) {
-    let pages = response.query.pages;
-    let langlinks = [];
-
-    Object.keys(pages).forEach((key) => {
-      let pageLanglinks = pages[key.toString()].langlinks;
-
-      if (pageLanglinks) {
-        pageLanglinks.forEach((langlink) => {
-          langlinks.push({
-            language: langlink.langname,
-            url: langlink.url,
-            term: langlink['*']
-          });
-        });
-      }
-    });
-
-    return langlinks;
-  }
-
-  makeRequest(searchTerm, continueParams, cb, doneCb) {
-    const hostUrl = 'https://en.wikipedia.org/w/api.php';
-    const baseQueryParams = 'action=query&format=json&prop=langlinks&llprop=langname|url&callback=?';
-    const continueQuery = this.buildContinueParamsString(continueParams);
-    const url = `${hostUrl}?${baseQueryParams}&titles=${searchTerm}&${continueQuery}`;
-
-    $.getJSON(url, (data) => {
-      let results = this.langlinksFromResponse(data);
-
-      if (data.continue) {
-        this.makeRequest(searchTerm, data.continue, (additionalResults) => {
-          let completeResults = results.concat(additionalResults);
-          cb(completeResults);
-        }, doneCb);
-      } else {
-        doneCb();
-      }
-
-      cb(results);
-    })
   }
 
   render() {
