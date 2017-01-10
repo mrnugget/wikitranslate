@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Autocomplete from 'react-autocomplete';
 
 import WikiClient from './wiki_client';
 
@@ -9,42 +10,67 @@ import './App.css';
 class SearchForm extends Component {
   constructor(props) {
     super(props);
-    this.state = {value: this.props.value};
+    this.state = {value: this.props.value, pages: []};
 
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
+    this.onSelect = this.onSelect.bind(this);
+    this.onChange = this.onChange.bind(this);
 
     this.client = new WikiClient();
+
+    this.menuStyle = {
+      borderRadius: '3px',
+      boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
+      background: 'rgba(255, 255, 255, 0.9)',
+      borderStyle: 'solid',
+      borderWidth: '1px',
+      borderColor: '#bbb',
+      padding: '2px 0',
+      fontSize: '90%',
+      position: 'fixed',
+      overflow: 'auto',
+      maxHeight: '50%',
+    }
   }
 
-  handleChange(event) {
-    let term = event.target.value;
-    this.setState({value: term});
-
-    this.client.autocomplete(term, (response) => {
-      console.log("term=", term, ", response=", response);
-    });
+  onSelect(value, item) {
+    this.setState({ value, pages: [ item ] })
+    this.props.onSubmit(item.title);
   }
 
-  handleSubmit(event) {
-    event.preventDefault();
-    this.props.onSubmit(this.state.value);
+  onChange(event, value) {
+    this.setState({ value, loading: true })
+    if (value === "") {
+        this.setState({ pages: [], loading: false })
+    } else {
+      this.client.autocomplete(value, (items) => {
+        this.setState({ pages: items, loading: false })
+      })
+    }
+  }
+
+  renderItem(item, isHighlighted) {
+    return (
+      <div
+        className={isHighlighted ? "highlighted-item" : "non-highlighted-item" }
+        key={item.title}
+        id={item.title}
+      >{item.title}</div>
+    )
   }
 
   render() {
-    let submit = null;
-
-    if (this.props.enabled) {
-      submit = <input className="button-primary" type="submit" value="Submit" />
-    } else {
-      submit = <input className="button-primary" type="submit" value="Submit" disabled="disabled" />
-    }
-
     return (
-      <form onSubmit={this.handleSubmit}>
-        <input type="text" value={this.state.value} onChange={this.handleChange} />
-        {submit}
-      </form>
+      <Autocomplete
+        wrapperStyle={{}}
+        inputProps={{name: "Search Term", id: "page-autocomplete", type: "text", className: "u-full-width"}}
+        ref="autocomplete"
+        value={this.state.value}
+        items={this.state.pages}
+        getItemValue={(item) => item.title}
+        onSelect={this.onSelect}
+        onChange={this.onChange}
+        renderItem={this.renderItem}
+      />
     )
   }
 }
@@ -133,7 +159,9 @@ class App extends Component {
         </div>
 
         <div className="row">
-          <SearchForm value={this.state.searchTerm} onSubmit={this.handleSearchSubmit} enabled={formEnabled} />
+          <div className="twelve columns">
+            <SearchForm value={this.state.searchTerm} onSubmit={this.handleSearchSubmit} enabled={formEnabled} />
+          </div>
         </div>
 
         <div className="row">
