@@ -15,8 +15,6 @@ class SearchForm extends Component {
     this.onSelect = this.onSelect.bind(this);
     this.onChange = this.onChange.bind(this);
     this.renderMenu = this.renderMenu.bind(this);
-
-    this.client = new WikiClient();
   }
 
   onSelect(value, item) {
@@ -30,7 +28,7 @@ class SearchForm extends Component {
     if (value === '') {
       this.setState({ pages: [], loading: false });
     } else {
-      this.client.autocomplete(value, (items) => {
+      this.props.wikiClient.autocomplete(value, (items) => {
         this.setState({ pages: items, loading: false })
       })
     }
@@ -66,6 +64,32 @@ class SearchForm extends Component {
         renderMenu={this.renderMenu}
         renderItem={this.renderItem}
       />
+    )
+  }
+}
+
+class LanguageSelector extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {value: this.props.value};
+
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(event) {
+    let language = event.target.value;
+    this.setState({value: language});
+    this.props.onChange(language);
+  }
+
+  render() {
+    return (
+      <div>
+        <select value={this.state.value} onChange={this.handleChange} className="u-full-width">
+          <option value="en">English</option>
+          <option value="de">German</option>
+        </select>
+      </div>
     )
   }
 }
@@ -114,15 +138,17 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
-    this.wikiClient = new WikiClient();
+    this.handleLanguageChange = this.handleLanguageChange.bind(this);
+
+    let language = 'en';
+    let wikiClient = new WikiClient(language);
 
     this.state = {
+      language: 'en',
       loading: false,
       searchTerm: props.term,
-      results: [
-        {language: 'german', term: 'Deutschland', url: 'https://www.google.de'},
-        {language: 'english', term: 'Germany', url: 'https://www.google.de'}
-      ]
+      wikiClient: wikiClient,
+      results: []
     };
   }
 
@@ -131,11 +157,15 @@ class App extends Component {
     this.fetchResults(searchTerm);
   }
 
+  handleLanguageChange(language) {
+    let wikiClient = new WikiClient(language);
+    this.setState({language: language, wikiClient: wikiClient});
+  }
 
   fetchResults(searchTerm) {
     this.setState({loading: true});
 
-    this.wikiClient.makeRequest(searchTerm, {}, (results) => {
+    this.state.wikiClient.makeRequest(searchTerm, {}, (results) => {
       this.setState({results: results})
     }, () => {
       this.setState({loading: false});
@@ -154,8 +184,11 @@ class App extends Component {
         </div>
 
         <div className="row">
-          <div className="twelve columns">
-            <SearchForm value={this.state.searchTerm} onSubmit={this.handleSearchSubmit} enabled={formEnabled} />
+          <div className="two columns">
+            <LanguageSelector value={this.state.language} onChange={this.handleLanguageChange} />
+          </div>
+          <div className="ten columns">
+            <SearchForm value={this.state.searchTerm} wikiClient={this.state.wikiClient} onSubmit={this.handleSearchSubmit} enabled={formEnabled} />
           </div>
         </div>
 

@@ -1,8 +1,9 @@
 import $ from 'jquery';
 
 class WikiClient {
-  constructor() {
-    this.hostUrl = 'https://en.wikipedia.org/w/api.php';
+  constructor(language) {
+    this.language = language;
+    this.hostUrl = `https://${language}.wikipedia.org/w/api.php`;
     this.baseQueryParams = 'action=query&format=json&prop=langlinks&llprop=langname|url&callback=?';
   }
 
@@ -74,7 +75,7 @@ class WikiClient {
   }
 
   autocomplete(term, cb) {
-    let url = `https://en.wikipedia.org/w/api.php?action=query&format=json&generator=prefixsearch&prop=pageprops&ppprop=displaytitle&wbptterms=description&gpssearch=${term}&gpsnamespace=0&gpslimit=6&callback=?`;
+    let url = `${this.hostUrl}?action=query&format=json&generator=prefixsearch&prop=pageprops&ppprop=displaytitle&wbptterms=description&gpssearch=${term}&gpsnamespace=0&gpslimit=6&callback=?`;
 
     $.getJSON(url, (response) => {
       let titles = this.pagetitlesFromResponse(response);
