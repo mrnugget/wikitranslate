@@ -2,8 +2,8 @@
   visibility: hidden;
 }
 
-.App-intro {
-  font-size: large;
+.app {
+  padding-top: 1em;
 }
 
 .results {

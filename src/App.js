@@ -176,10 +176,10 @@ class App extends Component {
     const formEnabled = !this.state.loading;
 
     return (
-      <div className="container">
+      <div className="container app">
         <div className="row">
           <div className="twelve columns">
-            <h2>Welcome to Wikitranslate!</h2>
+            <h2>Wikitranslate</h2>
           </div>
         </div>
 
