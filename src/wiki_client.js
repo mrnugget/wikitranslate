@@ -4,7 +4,6 @@ class WikiClient {
   constructor(language) {
     this.language = language;
     this.hostUrl = `https://${language}.wikipedia.org/w/api.php`;
-    this.baseQueryParams = 'action=query&format=json&prop=langlinks&llprop=langname|url&callback=?';
   }
 
   buildContinueParamsString(continueParams) {
@@ -51,7 +50,18 @@ class WikiClient {
   }
 
   buildUrl(searchTerm, continueQuery) {
-    return `${this.hostUrl}?${this.baseQueryParams}&titles=${searchTerm}&${continueQuery}`;
+    let queryParams = [
+      'action=query',
+      'format=json',
+      'prop=langlinks',
+      'llprop=langname|url',
+      'callback=?',
+      `titles=${searchTerm}`,
+      continueQuery
+    ];
+    let query = queryParams.join('&');
+
+    return `${this.hostUrl}?${query}`;
   }
 
   makeRequest(searchTerm, continueParams, cb, doneCb) {
@@ -75,7 +85,21 @@ class WikiClient {
   }
 
   autocomplete(term, cb) {
-    let url = `${this.hostUrl}?action=query&format=json&generator=prefixsearch&prop=pageprops&ppprop=displaytitle&wbptterms=description&gpssearch=${term}&gpsnamespace=0&gpslimit=6&callback=?`;
+    let queryParams = [
+      'action=query',
+      'callback=?',
+      'format=json',
+      'generator=prefixsearch',
+      'gpslimit=6',
+      'gpsnamespace=0',
+      `gpssearch=${term}`,
+      'ppprop=displaytitle',
+      'prop=pageprops',
+      'wbptterms=description'
+    ];
+
+    let query = queryParams.join('&');
+    let url = `${this.hostUrl}?${query}`;
 
     $.getJSON(url, (response) => {
       let titles = this.pagetitlesFromResponse(response);
