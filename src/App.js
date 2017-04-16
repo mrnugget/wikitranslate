@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import Autocomplete from 'react-autocomplete';
 
 import WikiClient from './wiki_client';
@@ -7,10 +7,20 @@ import './normalize.css';
 import './skeleton.css';
 import './App.css';
 
-class SearchForm extends Component {
+class SearchForm extends React.Component {
+  state: {
+    value: string;
+    pages: Array<Object>;
+    loading: boolean;
+  };
+
+  onChange: (Event, string) => void;
+  onSelect: (string, Object) => void;
+  renderMenu: (Array<Object>, string, Object) => React$Element<any>;
+
   constructor(props) {
     super(props);
-    this.state = {value: this.props.value, pages: []};
+    this.state = {value: this.props.value, pages: [], loading: false};
 
     this.onSelect = this.onSelect.bind(this);
     this.onChange = this.onChange.bind(this);
@@ -22,7 +32,7 @@ class SearchForm extends Component {
     this.props.onSubmit(item.title);
   }
 
-  onChange(event, value) {
+  onChange(event: Event, value: string) {
     this.setState({ value, loading: true })
 
     if (value === '') {
@@ -68,7 +78,7 @@ class SearchForm extends Component {
   }
 }
 
-class LanguageSelector extends Component {
+class LanguageSelector extends React.Component {
   constructor(props) {
     super(props);
     this.state = {value: this.props.value};
@@ -94,7 +104,7 @@ class LanguageSelector extends Component {
   }
 }
 
-class SearchResult extends Component {
+class SearchResult extends React.Component {
   render() {
     return (
       <div className="row resultItem">
@@ -109,14 +119,14 @@ class SearchResult extends Component {
   }
 }
 
-class LoadingIndicator extends Component {
+class LoadingIndicator extends React.Component {
   render() {
     let hiddenClass = this.props.loading ? "" : "hidden";
     return <span className={hiddenClass}>Loading...</span>
   }
 }
 
-class SearchResultsList extends Component {
+class SearchResultsList extends React.Component {
   render() {
     const results = this.props.results;
     const resultItems = results.map((r) =>
@@ -134,7 +144,7 @@ class SearchResultsList extends Component {
   }
 }
 
-class App extends Component {
+class App extends React.Component {
   constructor(props) {
     super(props);
     this.handleSearchSubmit = this.handleSearchSubmit.bind(this);

@@ -1,19 +1,24 @@
+// @flow
+
 import $ from 'jquery';
 
 class WikiClient {
-  constructor(language) {
+  language: string;
+  hostUrl: string;
+
+  constructor(language: string) {
     this.language = language;
     this.hostUrl = `https://${language}.wikipedia.org/w/api.php`;
   }
 
-  buildContinueParamsString(continueParams) {
+  buildContinueParamsString(continueParams: Object): string {
     let keys = Object.keys(continueParams);
     if (keys.length === 0) return 'continue=';
 
     return keys.map((key) => { return `${key}=${continueParams[key]}` }).join('&');
   }
 
-  langlinksFromResponse(response) {
+  langlinksFromResponse(response: Object) {
     let pages = response.query.pages;
     let langlinks = [];
 
@@ -34,7 +39,7 @@ class WikiClient {
     return langlinks;
   }
 
-  pagetitlesFromResponse(response) {
+  pagetitlesFromResponse(response: {query: {pages: {title: string}}}) {
     let pages = response.query.pages;
     let titles = [];
 
@@ -49,7 +54,7 @@ class WikiClient {
     return titles;
   }
 
-  buildUrl(searchTerm, continueQuery) {
+  buildUrl(searchTerm: string, continueQuery: string): string {
     let queryParams = [
       'action=query',
       'format=json',
@@ -64,8 +69,8 @@ class WikiClient {
     return `${this.hostUrl}?${query}`;
   }
 
-  makeRequest(searchTerm, continueParams, cb, doneCb) {
-    const continueQuery = this.buildContinueParamsString(continueParams);
+  makeRequest(searchTerm: string, continueParams: Object, cb: (Array<Object>) => void, doneCb: () => void) {
+    const continueQuery: string = this.buildContinueParamsString(continueParams);
     const url = this.buildUrl(searchTerm, continueQuery);
 
     $.getJSON(url, (data) => {
@@ -84,7 +89,7 @@ class WikiClient {
     })
   }
 
-  autocomplete(term, cb) {
+  autocomplete(term: string, cb: (Array<Object>) => void) {
     let queryParams = [
       'action=query',
       'callback=?',
